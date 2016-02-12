@@ -15,6 +15,16 @@ location /test {
 }
 ```
 
+running
+-------
+
+```
+$ /usr/local/nginx/sbin/nginx -c conf/nginx.conf
+$ ps aux
+$ curl -i http://localhost/test
+```
+
+
 NOTE
 ----
 
