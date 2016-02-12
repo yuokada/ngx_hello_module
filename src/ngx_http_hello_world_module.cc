@@ -3,20 +3,21 @@ extern "C" {
 #include <ngx_core.h>
 #include <ngx_http.h>
 }
+#include <iostream>
 using namespace std;
 extern "C" ngx_module_t ngx_http_hello_world_module;
 
 static char *ngx_http_hello_world(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 static ngx_command_t ngx_http_hello_world_module_commands[] = {
-    {
-         ngx_string("ngx_hello_world"),
-         NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS,
-         ngx_http_hello_world,
-         0,
-         0,
-         NULL,
-    },
+  {
+       ngx_string("ngx_hello_world"),
+       NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS,
+       ngx_http_hello_world,
+       0,
+       0,
+       NULL,
+  },
 
   ngx_null_command,
 };
@@ -48,7 +49,7 @@ ngx_module_t  ngx_http_hello_world_module = {
 };
 
 static ngx_str_t text_plain_type = ngx_string("text/html");
-static u_char hello_world[] = "<h1>Hello world !</h1>";
+static u_char hello_world[] = "<h1>Hello world !</h1>\n";
 
 static ngx_int_t
 ngx_http_hello_world_handler(ngx_http_request_t *r)
@@ -61,9 +62,13 @@ ngx_http_hello_world_handler(ngx_http_request_t *r)
 
   ngx_memzero(&cv, sizeof(ngx_http_complex_value_t));
 
-  cv.value.len = sizeof(hello_world) - 1;
-  cv.value.data = hello_world;
+  string hw = "Hello World!\n";
+  cv.value.len = hw.size();
+  cv.value.data = reinterpret_cast<u_char*>(const_cast<char*>(hw.c_str()));
 
+  // ngx_log_error(NGX_LOG_INFO, cv->log, NGX_ETIMEDOUT, "client timed out");
+  // or
+  ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "hello debug");
   return ngx_http_send_response(r, NGX_HTTP_OK, &text_plain_type, &cv);
 }
 
