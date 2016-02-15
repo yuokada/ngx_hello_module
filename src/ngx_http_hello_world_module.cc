@@ -66,9 +66,11 @@ ngx_http_hello_world_handler(ngx_http_request_t *r)
   cv.value.len = hw.size();
   cv.value.data = reinterpret_cast<u_char*>(const_cast<char*>(hw.c_str()));
 
-  // ngx_log_error(NGX_LOG_INFO, cv->log, NGX_ETIMEDOUT, "client timed out");
-  // or
-  ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "hello debug");
+  // r->headers_in.headers.get("DEBUG");
+
+  ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "client debug code");
+  // // or
+  // ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "hello debug");
   return ngx_http_send_response(r, NGX_HTTP_OK, &text_plain_type, &cv);
 }
 
