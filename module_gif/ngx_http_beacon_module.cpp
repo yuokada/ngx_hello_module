@@ -11,22 +11,20 @@ extern "C" {
 #include <iostream>
 using namespace std;
 
-static char *ngx_http_empty_gif(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+static char *ngx_http_empty_gif(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 static ngx_command_t ngx_http_empty_gif_commands[] = {
 
   {
-      ngx_string("beacon_gif"), // comment
-      NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS,      //
-      ngx_http_empty_gif,      //
-      0,      //
-      0,      //
-      NULL      //
+    ngx_string("beacon_gif"),            // comment
+    NGX_HTTP_LOC_CONF | NGX_CONF_NOARGS, //
+    ngx_http_empty_gif,                  //
+    0,                                   //
+    0,                                   //
+    NULL                                 //
   },
 
-  ngx_null_command
-};
+  ngx_null_command};
 
 
 /* the minimal single pixel transparent GIF, 43 bytes */
@@ -80,14 +78,14 @@ static u_char ngx_empty_gif[] = {
 
 
 static ngx_http_module_t ngx_http_empty_gif_module_ctx = {
-    NULL,                          /* preconfiguration */
-    NULL,                          /* postconfiguration */
-    NULL,                          /* create main configuration */
-    NULL,                          /* init main configuration */
-    NULL,                          /* create server configuration */
-    NULL,                          /* merge server configuration */
-    NULL,                          /* create location configuration */
-    NULL                           /* merge location configuration */
+  NULL, /* preconfiguration */
+  NULL, /* postconfiguration */
+  NULL, /* create main configuration */
+  NULL, /* init main configuration */
+  NULL, /* create server configuration */
+  NULL, /* merge server configuration */
+  NULL, /* create location configuration */
+  NULL  /* merge location configuration */
 };
 
 
@@ -107,35 +105,35 @@ extern "C" ngx_module_t  ngx_http_empty_gif_module = { // escape
 };
 
 
-static ngx_str_t  ngx_http_gif_type = ngx_string("image/gif");
+static ngx_str_t ngx_http_gif_type = ngx_string("image/gif");
 
 
 static ngx_int_t
 ngx_http_empty_gif_handler(ngx_http_request_t *r)
 {
-    ngx_http_complex_value_t  cv;
+  ngx_http_complex_value_t cv;
 
-    if (!(r->method & (NGX_HTTP_GET|NGX_HTTP_HEAD))) {
-        return NGX_HTTP_NOT_ALLOWED;
-    }
+  if (!(r->method & (NGX_HTTP_GET | NGX_HTTP_HEAD))) {
+    return NGX_HTTP_NOT_ALLOWED;
+  }
 
-    ngx_memzero(&cv, sizeof(ngx_http_complex_value_t));
+  ngx_memzero(&cv, sizeof(ngx_http_complex_value_t));
 
-    cv.value.len = sizeof(ngx_empty_gif);
-    cv.value.data = ngx_empty_gif;
-    r->headers_out.last_modified_time = 23349600;
+  cv.value.len = sizeof(ngx_empty_gif);
+  cv.value.data = ngx_empty_gif;
+  r->headers_out.last_modified_time = 23349600;
 
-    return ngx_http_send_response(r, NGX_HTTP_OK, &ngx_http_gif_type, &cv);
+  return ngx_http_send_response(r, NGX_HTTP_OK, &ngx_http_gif_type, &cv);
 }
 
 
 static char *
 ngx_http_empty_gif(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
-    ngx_http_core_loc_conf_t  *clcf;
+  ngx_http_core_loc_conf_t *clcf;
 
-    clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
-    clcf->handler = ngx_http_empty_gif_handler;
+  clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+  clcf->handler = ngx_http_empty_gif_handler;
 
-    return NGX_CONF_OK;
+  return NGX_CONF_OK;
 }
