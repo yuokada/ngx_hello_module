@@ -9,31 +9,6 @@ extern "C" ngx_module_t ngx_http_hello_world_module;
 
 static char *ngx_http_hello_world(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
-static ngx_http_output_header_filter_pt  ngx_http_next_header_filter;
-static ngx_http_output_body_filter_pt    ngx_http_next_body_filter;
-
-static ngx_int_t
-ngx_http_gzip_header_filter(ngx_http_request_t *r)
-{
-    ngx_table_elt_t       *h;
-
-    // r->headrs_out.x_debug = ngx_list_push(&r->headers_out)
-    // r->headers_out.x_debug = ngx_list_push(&r->headers_out.headers);
-    h = reinterpret_cast<ngx_table_elt_t *>(ngx_list_push(&r->headers_out.headers));
-    if (h == NULL) {
-        return NGX_ERROR;
-    }
-    h->hash = 1;
-    h->key.len = sizeof("X-Debug") - 1;
-    h->key.data = (u_char *) "X-Debug";
-    h->value.len = sizeof("1") - 1;
-    h->value.data = (u_char *) "1";
-    ngx_http_send_header(r);
-
-    // <-- 中略したけどこんな感じ。
-    return ngx_http_next_header_filter(r);
-}
-
 static ngx_command_t ngx_http_hello_world_module_commands[] = {
   {
        ngx_string("ngx_hello_world"),
@@ -79,6 +54,7 @@ static u_char hello_world[] = "<h1>Hello world !</h1>\n";
 static ngx_int_t
 ngx_http_hello_world_handler(ngx_http_request_t *r)
 {
+  ngx_table_elt_t          *h;
   ngx_http_complex_value_t cv;
 
   if (!(r->method & (NGX_HTTP_GET | NGX_HTTP_HEAD))) {
@@ -87,7 +63,7 @@ ngx_http_hello_world_handler(ngx_http_request_t *r)
 
   ngx_memzero(&cv, sizeof(ngx_http_complex_value_t));
 
-  string hw = "Hello World! V2\n";
+  string hw = "Hello World! V2.1\n";
   cv.value.len = hw.size();
   cv.value.data = reinterpret_cast<u_char*>(const_cast<char*>(hw.c_str()));
 
@@ -95,19 +71,19 @@ ngx_http_hello_world_handler(ngx_http_request_t *r)
   ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "client debug code");
   // // or
   // ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "hello debug");
+
+  h = reinterpret_cast<ngx_table_elt_t *>(ngx_list_push(&r->headers_out.headers));
+  if (h == NULL) {
+      return NGX_ERROR;
+  }
+  h->hash = 1;
+  h->key.len = sizeof("X-Debug") - 1;
+  h->key.data = (u_char *) "X-Debug";
+  h->value.len = sizeof("1") - 1;
+  h->value.data = (u_char *) "1";
+  // ngx_http_send_header(r);
+
   return ngx_http_send_response(r, NGX_HTTP_OK, &text_plain_type, &cv);
-}
-
-static ngx_int_t
-ngx_http_gzip_filter_init(ngx_conf_t *cf)
-{
-  // src/http/modules/ngx_http_gzip_filter_module.c
- ngx_http_next_header_filter = ngx_http_top_header_filter;
- ngx_http_top_header_filter = ngx_http_gzip_header_filter;
- // ngx_http_next_body_filter = ngx_http_top_body_filter;
- // ngx_http_top_body_filter = ngx_http_gzip_body_filter;
-
-    return NGX_OK;
 }
 
 static char *
