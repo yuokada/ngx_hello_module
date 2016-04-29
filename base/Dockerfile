@@ -12,7 +12,7 @@ RUN yum install -y epel-release; \
 RUN mkdir /root/ngx-practice
 WORKDIR /root/ngx-practice
 ENV TGZFILE nginx.tar.gz
-RUN wget http://nginx.org/download/nginx-1.9.11.tar.gz -O $TGZFILE && tar zxf $TGZFILE && rm -f $TGZFILE
+RUN wget http://nginx.org/download/nginx-1.9.15.tar.gz -O $TGZFILE && tar zxf $TGZFILE && rm -f $TGZFILE
 #ADD . /root/ngx-practice
 #VOLUME ["."]
 CMD ["/bin/bash"]
